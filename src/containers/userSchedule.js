@@ -2,13 +2,14 @@ import React, {Component} from 'react';
 import '../style/scheduleUser.css';
 import RaisedButton from 'material-ui/RaisedButton';
 import {ScheduleList} from '../components/scheduleList';
-import {ScheduleUserHeader} from '../components/scheduleHeader';
+import ScheduleUserHeader from '../components/scheduleHeader';
 import { withRouter } from 'react-router'
 import axios from 'axios';
 import DateService from '../services/dateService';
 import TextField from 'material-ui/TextField';
 import DataService from '../services/dataService';
 import Dialog from 'material-ui/Dialog';
+import _ from 'lodash';
 class UserSchedule extends Component{
     constructor(props){
         super(props);
@@ -17,25 +18,54 @@ class UserSchedule extends Component{
             formModalOpen:false,
             name:'',
             phone:'',
-            date:'',
-            hour:''
+            date:DateService.getTodayDateFormatted(),
+            hour:'',
+            startHour:'',
+            endHour:''
         }
     }
     componentDidMount(){
         const userUrl = this.props.match.params.id;
-        const date = DateService.getTodayDateFormatted();
-        DataService.getUserTimesPromise(userUrl,date).then((response) => {
+        DataService.getUserTimesPromise(userUrl,this.state.date).then((response) => {
             this.setState({times:response.data.times})
         })
     }
-    createOrder(){
-        DateService.createNewOrder(this.state.name,this.state.phone).then((data) => {
-            this.closeFormModal();
+    setDate(date){
+        this.setState({
+            date:DateService.getFormattedDate(date)
         })
     }
-    openFormModal(){
+    createDataObj(){
+        return {
+            userUrl: this.props.match.params.id,
+            startHour: this.state.startHour,
+            endHour:this.state.endHour,
+            date:this.state.date,
+            phone:this.state.phone,
+            name:this.state.name
+        }
+    }
+    createOrder(){
+        const dataObj = this.createDataObj();
+        
+        DataService.createNewOrder(dataObj).then((data) => {
+            this.closeFormModal();
+            let tempTimes = this.state.times.map(item => {
+                if(item.startHour === dataObj.startHour){
+                    item.order = data;
+                }
+                return item;
+            });
+            this.setState({
+                times:tempTimes
+            });
+        })
+    }
+    openFormModal(time){
         this.setState({
-            formModalOpen:true
+            formModalOpen:true,
+            startHour:time.startHour,
+            endHour:time.endHour
         });
     }
     closeFormModal(){
@@ -46,7 +76,7 @@ class UserSchedule extends Component{
     render(){
         return(
             <div className="scheduleWrapper">
-                <ScheduleUserHeader/>
+                <ScheduleUserHeader date={this.state.date} setDate={(date) => {this.setDate(date)} }/>
                 <ScheduleList times={this.state.times} onClick={(hour) => {this.openFormModal(hour)}}/>
                 <Dialog
                     title={"אנא מלא/י את הפרטים על מנת לקבוע תור:"}

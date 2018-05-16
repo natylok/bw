@@ -3,7 +3,7 @@ import {List, ListItem} from 'material-ui/List';
 import '../style/scheduleUser.css';
 export const ScheduleList = ({times,onClick}) => {
     const itemListByTimes = times.map(time => {
-        return <ListItem onClick={() => {onClick(time)}} key={time.startHour} innerDivStyle={listItemStyle} primaryText={`${time.startHour}-${time.endHour}`}/>
+        return <ListItem secondaryText={time.order ? "תפוס" : " "} style={time.order ? disabledGrayItemStyle : {}} disabled={Boolean(time.order)} onClick={() => {onClick(time)}} key={time.startHour} innerDivStyle={listItemStyle} primaryText={`${time.startHour}-${time.endHour}`}/>
     })
     return(
         <div className="schedule-orders-wrapper">
@@ -18,4 +18,7 @@ const listItemStyle = {
     margin:'0.5vw',
     border:'1px solid rgba(45, 42, 42,0.5)',
     minWidth:'8vw'
+}
+const disabledGrayItemStyle = {
+    backgroundColor:'lightgray'
 }
