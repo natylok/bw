@@ -15,8 +15,9 @@ export const ScheduleList = ({times,onClick}) => {
 }
 const listItemStyle = {
     textAlign:'center', 
-    margin:'0.5vw',
+    margin:'0.7vw',
     border:'1px solid rgba(45, 42, 42,0.5)',
+    padding:'0.7vw 1.2vw 0.7vw 1.2vw',
     minWidth:'8vw'
 }
 const disabledGrayItemStyle = {
